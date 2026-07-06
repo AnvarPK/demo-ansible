@@ -4,17 +4,12 @@
   gather_facts: false
 
   tasks:
-    - name: Show hostname
-      command: hostname
-      register: host
+    - name: Show current environment
+      shell: |
+        pwd
+        whoami
+        ps -ef
+      register: result
 
     - debug:
-        var: host.stdout
-
-    - name: Show yes processes
-      shell: ps -ef | grep yes
-      register: psout
-      ignore_errors: true
-
-    - debug:
-        var: psout.stdout_lines
+        var: result.stdout_lines
