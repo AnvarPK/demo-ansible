@@ -1,15 +1,8 @@
 ---
-- hosts: localhost
-  connection: local
+- hosts: all
+  become: true
   gather_facts: false
 
   tasks:
-    - name: Show current environment
-      shell: |
-        pwd
-        whoami
-        ps -ef
-      register: result
-
-    - debug:
-        var: result.stdout_lines
+    - name: Test connection
+      ping:
