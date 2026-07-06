@@ -4,9 +4,17 @@
   gather_facts: false
 
   tasks:
-    - name: Log remediation execution
-      shell: |
-        echo "Instana remediation executed at $(date)" >> /tmp/instana-remediation.log
+    - name: Show hostname
+      command: hostname
+      register: host
 
-    - name: Kill CPU stress processes
-      shell: pkill yes || true
+    - debug:
+        var: host.stdout
+
+    - name: Show yes processes
+      shell: ps -ef | grep yes
+      register: psout
+      ignore_errors: true
+
+    - debug:
+        var: psout.stdout_lines
