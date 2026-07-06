@@ -1,8 +1,12 @@
 ---
-- hosts: all
-  become: true
+- hosts: localhost
+  connection: local
   gather_facts: false
 
   tasks:
-    - name: Test connection
-      ping:
+    - name: Log remediation execution
+      shell: |
+        echo "Instana remediation executed at $(date)" >> /tmp/instana-remediation.log
+
+    - name: Kill CPU stress processes
+      shell: pkill yes || true
