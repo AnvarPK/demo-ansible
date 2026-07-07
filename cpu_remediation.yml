@@ -5,7 +5,7 @@
   gather_facts: false
 
   vars:
-    cpu_threshold: 95
+    cpu_threshold: 70
     safe_processes:
       - yes
 
@@ -41,10 +41,6 @@
         kill -9 {{ item.split()[0] }}
       loop: "{{ high_cpu_processes.stdout_lines }}"
       when: item.split()[1] in safe_processes
-
-    - name: Log remediation
-      shell: |
-        echo "$(date): CPU remediation executed" >> /var/log/cpu-remediation.log
 
     - name: Verify CPU after remediation
       shell: |
