@@ -1,5 +1,4 @@
 ---
----
 - name: Diagnose and Remediate High CPU Usage
   hosts: all
   become: yes
