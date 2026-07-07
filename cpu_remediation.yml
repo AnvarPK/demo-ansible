@@ -1,53 +1,24 @@
 ---
-- name: Diagnose and Remediate High CPU Usage
-  hosts: all
-  become: yes
-  gather_facts: false
+- name: Find processes using more than 80% CPU
+  shell: |
+    ps -eo pid,comm,%cpu --no-headers | awk '$3 >= 80 {print $1,$2,$3}'
+  register: high_cpu_processes
+  changed_when: false
 
-  vars:
-    cpu_threshold: 70
-    safe_processes:
-      - yes
+- name: Show high CPU processes
+  debug:
+    var: high_cpu_processes.stdout_lines
 
-  tasks:
+- name: Kill all high CPU processes
+  shell: |
+    kill -9 {{ item.split()[0] }}
+  loop: "{{ high_cpu_processes.stdout_lines }}"
+  ignore_errors: true
 
-    - name: Get current CPU usage
-      shell: |
-        top -bn1 | grep "Cpu(s)" | awk '{print int(100 - $8)}'
-      register: cpu_usage
-      changed_when: false
+- name: Verify CPU after remediation
+  shell: top -bn1 | head -5
+  register: after_fix
+  changed_when: false
 
-    - name: Show CPU usage
-      debug:
-        msg: "Current CPU Usage: {{ cpu_usage.stdout }}%"
-
-    - name: Exit if CPU is below threshold
-      meta: end_play
-      when: cpu_usage.stdout | int < cpu_threshold
-
-    - name: Find processes using more than 80% CPU
-      shell: |
-        ps -eo pid,comm,%cpu --no-headers \
-        | awk '$3 >= 80 {print $1,$2,$3}'
-      register: high_cpu_processes
-      changed_when: false
-
-    - name: Show high CPU processes
-      debug:
-        var: high_cpu_processes.stdout_lines
-
-    - name: Kill only safe demo processes
-      shell: |
-        kill -9 {{ item.split()[0] }}
-      loop: "{{ high_cpu_processes.stdout_lines }}"
-      when: item.split()[1] in safe_processes
-
-    - name: Verify CPU after remediation
-      shell: |
-        top -bn1 | head -5
-      register: after_fix
-      changed_when: false
-
-    - name: Display verification
-      debug:
-        var: after_fix.stdout_lines
+- debug:
+    var: after_fix.stdout_lines
