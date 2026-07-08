@@ -13,7 +13,7 @@
           - "Service: {{ service_name }}"
           - "Event: {{ event_id }}"
           - "Severity: {{ severity }}"
-`
+
     - name: Log remediation execution
       shell: |
         echo "Instana remediation executed at $(date)" >> /tmp/instana-remediation.log
