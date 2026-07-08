@@ -4,33 +4,10 @@
   become: yes
   gather_facts: false
 
-  vars:
-    cpu_threshold: 80
-    safe_processes:
-      - yes
-
   tasks:
-  
-    - name: Find processes using more than 80% CPU
+    - name: Log remediation execution
       shell: |
-        ps -eo pid,comm,%cpu --no-headers | awk '$3 >= 80 {print $1,$2,$3}'
-      register: high_cpu_processes
-      changed_when: false
-    
-    - name: Show high CPU processes
-      debug:
-        var: high_cpu_processes.stdout_lines
-    
-    - name: Kill all high CPU processes
-      shell: |
-        kill -9 {{ item.split()[0] }}
-      loop: "{{ high_cpu_processes.stdout_lines }}"
-      ignore_errors: true
-    
-    - name: Verify CPU after remediation
-      shell: top -bn1 | head -5
-      register: after_fix
-      changed_when: false
-    
-    - debug:
-        var: after_fix.stdout_lines
+        echo "Instana remediation executed at $(date)" >> /tmp/instana-remediation.log
+
+    - name: Kill CPU stress processes
+      shell: pkill yes || true
