@@ -5,6 +5,15 @@
   gather_facts: false
 
   tasks:
+  
+    - name: Show received data
+      debug:
+        msg:
+          - "Entity: {{ entity_name }}"
+          - "Service: {{ service_name }}"
+          - "Event: {{ event_id }}"
+          - "Severity: {{ severity }}"
+`
     - name: Log remediation execution
       shell: |
         echo "Instana remediation executed at $(date)" >> /tmp/instana-remediation.log
